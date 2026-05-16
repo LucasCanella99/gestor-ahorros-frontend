@@ -3,535 +3,858 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Ahorros - Ciberpunk</title>
+    <title>🐃 Gestor de Ahorros</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-principal: #0a0a0c;
-            --bg-tarjeta: #121216;
-            --neon-verde: #00ff66;
-            --neon-rojo: #ff3366;
-            --neon-azul: #00f0ff;
-            --texto: #e2e8f0;
-            --texto-oscuro: #64748b;
+            --bg: #0f0f0f;
+            --surface: #1a1a1a;
+            --surface2: #242424;
+            --border: #2e2e2e;
+            --accent: #c8f135;
+            --accent2: #35f1a0;
+            --danger: #f14e35;
+            --text: #f0f0f0;
+            --muted: #888;
+            --blue: #4da6ff;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Courier New', Courier, monospace;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-principal);
-            color: var(--texto);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ===== LOGIN ===== */
+        #loginScreen {
             min-height: 100vh;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(200,241,53,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(53,241,160,0.05) 0%, transparent 50%),
+                var(--bg);
         }
 
-        /* Reloj Ciberpunk Flotante Fijo */
-        #reloj-cyberpunk {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background: rgba(18, 18, 22, 0.85);
-            border: 1px solid var(--neon-azul);
-            padding: 8px 12px;
-            border-radius: 4px;
-            text-align: right;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-            z-index: 9999;
-            pointer-events: none;
-        }
-        #reloj-cyberpunk .hora {
-            font-size: 1.1rem;
-            color: var(--neon-azul);
-            font-weight: bold;
-            text-shadow: 0 0 5px var(--neon-azul);
-        }
-        #reloj-cyberpunk .fecha {
-            font-size: 0.75rem;
-            color: var(--texto-oscuro);
-        }
-        #reloj-cyberpunk .status {
-            font-size: 0.65rem;
-            color: var(--neon-verde);
-            letter-spacing: 1px;
-        }
-
-        .contenedor {
-            width: 100%;
-            max-width: 900px;
-            background: var(--bg-tarjeta);
-            border: 2px solid #1e1e24;
-            border-radius: 8px;
-            padding: 25px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 40px;
+            width: 380px;
             position: relative;
-        }
-
-        h1, h2 {
-            color: var(--texto);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #1e1e24;
-            padding-bottom: 10px;
-        }
-
-        h1 span { color: var(--neon-azul); }
-
-        .oculto { display: none !important; }
-
-        /* Formularios */
-        .grupo-input {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-            color: var(--texto-oscuro);
-            text-transform: uppercase;
-        }
-        input, select {
-            width: 100%;
-            background: #1a1a22;
-            border: 1px solid #2d2d3a;
-            padding: 10px;
-            color: var(--texto);
-            border-radius: 4px;
-            outline: none;
-        }
-        input:focus, select:focus {
-            border-color: var(--neon-azul);
-            box-shadow: 0 0 5px rgba(0, 240, 255, 0.3);
-        }
-
-        /* Botones */
-        button {
-            width: 100%;
-            background: transparent;
-            border: 1px solid var(--neon-azul);
-            color: var(--neon-azul);
-            padding: 12px;
-            cursor: pointer;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 1px;
-            transition: all 0.2s ease;
-            margin-top: 10px;
-        }
-        button:hover {
-            background: var(--neon-azul);
-            color: #000;
-            box-shadow: 0 0 10px var(--neon-azul);
-        }
-        .btn-logout {
-            border-color: var(--neon-rojo);
-            color: var(--neon-rojo);
-            margin-top: 20px;
-        }
-        .btn-logout:hover {
-            background: var(--neon-rojo);
-            color: #000;
-            box-shadow: 0 0 10px var(--neon-rojo);
-        }
-
-        /* Dashboard */
-        .grid-dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 768px) {
-            .grid-dashboard { grid-template-columns: 1fr; }
-            #reloj-cyberpunk .fecha, #reloj-cyberpunk .status { display: none; }
-            #reloj-cyberpunk { top: 5px; right: 5px; padding: 4px 8px; }
-            #reloj-cyberpunk .hora { font-size: 0.9rem; }
-        }
-
-        .balance-box {
-            background: #16161e;
-            border-left: 4px solid var(--neon-azul);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        .balance-box h3 { font-size: 0.9rem; color: var(--texto-oscuro); text-transform: uppercase; }
-        .balance-box p { font-size: 1.8rem; font-weight: bold; margin-top: 5px; color: var(--neon-verde); }
-
-        /* Historial en Grilla Fija y Centrada */
-        .lista-movimientos {
-            margin-top: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .item-movimiento {
-            display: grid;
-            grid-template-columns: 1fr 90px 100px;
-            align-items: center;
-            background: #16161e;
-            padding: 10px;
-            border-bottom: 1px solid #2d2d3a;
-            font-size: 0.85rem;
-            gap: 10px;
-        }
-        .item-movimiento .desc {
-            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
-        .item-movimiento .monto {
-            text-align: right;
-            font-weight: bold;
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
         }
-        .item-movimiento .monto.ingreso { color: var(--neon-verde); }
-        .item-movimiento .monto.gasto { color: var(--neon-rojo); }
-        .item-movimiento .fecha-item {
-            color: var(--texto-oscuro);
-            text-align: center;
-        }
+        .login-logo { font-size: 2.5rem; margin-bottom: 6px; text-align: center; }
+        .login-title { font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 32px; letter-spacing: -0.5px; }
 
-        .error-msg {
-            color: var(--neon-rojo);
-            font-size: 0.85rem;
-            margin-top: 10px;
-            text-align: center;
-        }
+        .field { margin-bottom: 14px; }
+        .field label { display: block; font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'Space Mono', monospace; }
+        .field input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.95rem; transition: border-color 0.2s; outline: none; }
+        .field input:focus { border-color: var(--accent); }
+
+        .btn-primary { width: 100%; background: var(--accent); color: #0f0f0f; border: none; border-radius: 10px; padding: 13px; font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-top: 8px; }
+        .btn-primary:hover { opacity: 0.88; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .error-msg { color: var(--danger); font-size: 0.82rem; text-align: center; margin-top: 12px; font-family: 'Space Mono', monospace; display: none; }
+
+        /* ===== DASHBOARD ===== */
+        #dashboardScreen { display: none; max-width: 900px; margin: 0 auto; padding: 32px 24px; }
+
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .dashboard-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+
+        .btn-logout { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 8px 16px; font-family: 'Space Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+        /* ===== CARDS SALDO ===== */
+        .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        @media (max-width: 600px) { .cards-grid { grid-template-columns: 1fr; } }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .card-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 10px; }
+        .card-amount { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; color: var(--accent); line-height: 1; }
+        .card-sub { font-size: 0.82rem; color: var(--muted); margin-top: 6px; font-family: 'Space Mono', monospace; }
+        .card-name { font-size: 1rem; font-weight: 600; color: var(--accent2); margin-bottom: 4px; }
+
+        .progress-bar-bg { background: var(--surface2); border-radius: 99px; height: 6px; margin-top: 12px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 99px; transition: width 0.8s cubic-bezier(.16,1,.3,1); }
+
+        /* ===== PANEL ===== */
+        .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .panel-title { font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+        /* ===== FORM MOVIMIENTO ===== */
+        .form-grid { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr auto; gap: 10px; align-items: end; margin-top: 16px; }
+        @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr 1fr; } .form-grid .btn-create { grid-column: 1 / -1; } }
+
+        .form-group label { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'Space Mono', monospace; }
+        .form-group input,
+        .form-group select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; appearance: none; -webkit-appearance: none; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+        .form-group select option { background: var(--surface2); }
+
+        .btn-create { background: var(--accent); color: #0f0f0f; border: none; border-radius: 10px; padding: 11px 20px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+        .btn-create:hover { opacity: 0.85; }
+        .btn-create:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        #destinoGroup { transition: opacity 0.2s, visibility 0.2s; }
+        #destinoGroup.hidden-field { opacity: 0.3; pointer-events: none; }
+
+        /* ===== ALCANCÍAS GRID ===== */
+        .alcancias-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+
+        .alcancia-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; position: relative; transition: border-color 0.2s; animation: fadeIn 0.3s ease; }
+        .alcancia-card.activa { border-color: var(--accent2); }
+
+        .badge-activa { position: absolute; top: 12px; right: 12px; background: rgba(53,241,160,0.15); color: var(--accent2); border-radius: 6px; padding: 2px 8px; font-size: 0.65rem; font-weight: 700; font-family: 'Space Mono', monospace; letter-spacing: 0.5px; }
+        .alcancia-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; padding-right: 70px; }
+        .alcancia-card-fecha { font-size: 0.68rem; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 8px; }
+        .alcancia-card-montos { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+        .alcancia-card-montos span { color: var(--accent2); font-weight: 700; }
+        .alcancia-card .progress-bar-bg { margin-top: 0; margin-bottom: 12px; }
+        .alcancia-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        /* Botones pequeños */
+        .btn-sm { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 7px; padding: 5px 12px; font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-sm.activar { border-color: var(--accent2); color: var(--accent2); }
+        .btn-sm.activar:hover { background: var(--accent2); color: #0f0f0f; }
+        .btn-sm.nueva { border-color: var(--accent); color: var(--accent); }
+        .btn-sm.nueva:hover { background: var(--accent); color: #0f0f0f; }
+        .btn-sm.danger { border-color: var(--danger); color: var(--danger); }
+        .btn-sm.danger:hover { background: var(--danger); color: #fff; }
+        .btn-sm:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+        /* ===== HISTORIAL ===== */
+        .historial-list { max-height: 420px; overflow-y: auto; margin-top: 16px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .mov-item { display: grid; grid-template-columns: 1fr 90px 110px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+        .mov-item:last-child { border-bottom: none; }
+        .mov-desc { font-size: 0.9rem; font-weight: 600; }
+        .mov-fecha { font-size: 0.72rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+        .mov-badge-wrap { display: flex; justify-content: center; }
+        .mov-monto { font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700; white-space: nowrap; text-align: right; }
+        .mov-monto.ingreso { color: var(--accent2); }
+        .mov-monto.gasto   { color: var(--danger); }
+        .mov-monto.ahorrar { color: var(--blue); }
+        .mov-badge { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; font-family: 'Space Mono', monospace; text-align: center; }
+        .badge-ingreso { background: rgba(53,241,160,0.12); color: var(--accent2); }
+        .badge-gasto   { background: rgba(241,78,53,0.12); color: var(--danger); }
+        .badge-ahorrar { background: rgba(77,166,255,0.12); color: var(--blue); }
+        .empty-state { text-align: center; color: var(--muted); font-size: 0.88rem; padding: 32px 0; font-family: 'Space Mono', monospace; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 420px; max-width: 92vw; transform: translateY(20px); transition: transform 0.25s cubic-bezier(.16,1,.3,1); position: relative; }
+        .modal-overlay.open .modal { transform: translateY(0); }
+        .modal::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 16px 16px 0 0; }
+        .modal-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 20px; }
+        .modal .field { margin-bottom: 12px; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+        .btn-cancel { flex: 1; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 10px; padding: 11px; font-family: 'Syne', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+        .btn-confirm { flex: 2; background: var(--accent); color: #0f0f0f; border: none; border-radius: 10px; padding: 11px; font-family: 'Syne', sans-serif; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+        .btn-confirm:hover { opacity: 0.85; }
+        .btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-confirm.danger-confirm { background: var(--danger); color: #fff; }
+
+        .confirm-msg  { font-size: 0.88rem; color: var(--muted); margin-bottom: 6px; line-height: 1.5; }
+        .confirm-name { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+
+        /* ===== TOAST ===== */
+        #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; font-size: 0.88rem; font-family: 'Space Mono', monospace; transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(.16,1,.3,1); z-index: 999; max-width: 320px; }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { border-color: var(--accent2); color: var(--accent2); }
+        #toast.error   { border-color: var(--danger); color: var(--danger); }
+
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #0f0f0f; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+        .updating { transition: opacity 0.25s ease; opacity: 0.35; }
+        .updated  { transition: opacity 0.35s ease; opacity: 1; }
+
+        @keyframes spin   { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="reloj-cyberpunk">
-        <div class="hora" id="cyber-hora">00:00:00</div>
-        <div class="fecha" id="cyber-fecha">00/00/2026</div>
-        <div class="status">SYS_STATUS: OK</div>
+<div id="loginScreen">
+    <div class="login-card">
+        <div class="login-logo">🐃</div>
+        <h1 class="login-title">Gestor de Ahorros</h1>
+        <div class="field">
+            <label>Usuario</label>
+            <input type="text" id="username" placeholder="tu_usuario" autocomplete="username">
+        </div>
+        <div class="field">
+            <label>Contraseña</label>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button type="button" class="btn-primary" id="loginBtn">Ingresar</button>
+        <p class="error-msg" id="loginError"></p>
+    </div>
+</div>
+
+<div id="dashboardScreen">
+    <div class="dashboard-header">
+        <div class="dashboard-title">🐃 Gestor de Ahorros</div>
+        <button type="button" class="btn-logout" id="logoutBtn">Cerrar sesión</button>
     </div>
 
-    <div class="contenedor">
-        <div id="seccion-auth">
-            <h1 id="auth-titulo"><span>//</span> INICIAR SESIÓN</h1>
-            <form id="form-auth">
-                <div class="grupo-input">
-                    <label>Usuario</label>
-                    <input type="text" id="auth-username" required autocomplete="username">
-                </div>
-                <div class="grupo-input">
-                    <label>Contraseña</label>
-                    <input type="password" id="auth-password" required autocomplete="current-password">
-                </div>
-                <button type="submit" id="btn-auth-enviar">Ingresar</button>
-            </form>
-            <button id="btn-toggle-auth" style="border-color: var(--texto-oscuro); color: var(--texto-oscuro); font-size: 0.75rem;">¿No tenés cuenta? Registrate acá</button>
-            <div id="auth-error" class="error-msg"></div>
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-label">💰 Billetera</div>
+            <div class="card-amount" id="billeteraSaldo">—</div>
         </div>
-
-        <div id="seccion-app" class="oculto">
-            <h1><span>//</span> PANEL DE CONTROL</h1>
-            
-            <div class="balance-box">
-                <h3>Balance Total</h3>
-                <p id="balance-monto">$0.00</p>
+        <div class="card">
+            <div class="card-label">🎯 Alcancía Activa</div>
+            <div class="card-name" id="alcanciaNombre">Cargando…</div>
+            <div class="card-sub" id="alcanciaProgreso"></div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
             </div>
-
-            <div class="grid-dashboard">
-                <div>
-                    <h2>Nuevo Movimiento</h2>
-                    <form id="form-movimiento">
-                        <div class="grupo-input">
-                            <label>Descripción</label>
-                            <input type="text" id="mov-descripcion" required placeholder="Ej: Nafta Boxer">
-                        </div>
-                        <div class="grupo-input">
-                            <label>Monto ($)</label>
-                            <input type="number" step="0.01" id="mov-monto" required placeholder="0.00">
-                        </div>
-                        <div class="grupo-input">
-                            <label>Tipo</label>
-                            <select id="mov-tipo">
-                                <option value="ingreso">Ingreso (Ahorro / Sueldo)</option>
-                                <option value="gasto">Gasto</option>
-                            </select>
-                        </div>
-                        <button type="submit" id="btn-guardar-movimiento">Guardar Movimiento</button>
-                    </form>
-                    <div id="mov-error" class="error-msg"></div>
-                </div>
-
-                <div>
-                    <h2>Historial</h2>
-                    <div class="item-movimiento" style="background: transparent; border-bottom: 2px solid var(--neon-azul); font-weight: bold; color: var(--neon-azul);">
-                        <div>Detalle</div>
-                        <div style="text-align: right;">Monto</div>
-                        <div style="text-align: center;">Fecha</div>
-                    </div>
-                    <div class="lista-movimientos" id="contenedor-movimientos">
-                        </div>
-                </div>
-            </div>
-
-            <button id="btn-logout" class="btn-logout">Desconectarse del sistema</button>
         </div>
     </div>
 
-    <script>
-        // CONFIGURACIÓN DE URLS DE PRODUCCIÓN (RENDER)
-        const API_BASE_URL = "https://gestor-ahorros-backend.onrender.com/api";
-        
-        let modoLogin = true;
+    <div class="panel">
+        <div class="panel-title">Nuevo Movimiento</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Descripción</label>
+                <input type="text" id="descripcion" placeholder="Ej: Sueldo de mayo">
+            </div>
+            <div class="form-group">
+                <label>Monto</label>
+                <input type="number" id="monto" placeholder="0" min="0.01" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="tipo">
+                    <option value="ingreso">💰 Ingreso</option>
+                    <option value="gasto">💸 Gasto</option>
+                    <option value="ahorrar">🔄 Ahorrar</option>
+                </select>
+            </div>
+            <div class="form-group" id="destinoGroup">
+                <label>Destino</label>
+                <select id="destino">
+                    <option value="billetera">Billetera</option>
+                    <option value="alcancia">Alcancía</option>
+                </select>
+            </div>
+            <button type="button" class="btn-create" id="crearMovimientoBtn">Crear</button>
+        </div>
+    </div>
 
-        // --- RELOJ DINÁMICO CIBERPUNK ---
-        function actualizarReloj() {
-            const ahora = new Date();
-            
-            // Hora
-            const hrs = String(ahora.getHours()).padStart(2, '0');
-            const mins = String(ahora.getMinutes()).padStart(2, '0');
-            const secs = String(ahora.getSeconds()).padStart(2, '0');
-            document.getElementById('cyber-hora').textContent = `${hrs}:${mins}:${secs}`;
-            
-            // Fecha formato Argentino (DD/MM/AAAA)
-            const dia = String(ahora.getDate()).padStart(2, '0');
-            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-            const anio = ahora.getFullYear();
-            document.getElementById('cyber-fecha').textContent = `${dia}/${mes}/${anio}`;
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">🎯 Mis Alcancías</div>
+            <button type="button" class="btn-sm nueva" id="btnNuevaAlcancia">+ Nueva</button>
+        </div>
+        <div class="alcancias-grid" id="alcanciasGrid">
+            <div class="empty-state">Cargando…</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-title">📜 Historial de Movimientos</div>
+        <div class="historial-list" id="historial">
+            <div class="empty-state">Cargando movimientos…</div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalAlcancia">
+    <div class="modal">
+        <div class="modal-title">Nueva Alcancía</div>
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" id="alcNombre" placeholder="Ej: Viaje a Europa">
+        </div>
+        <div class="field">
+            <label>Monto Objetivo</label>
+            <input type="number" id="alcObjetivo" placeholder="0" min="1" step="0.01">
+        </div>
+        <div class="field">
+            <label>Fecha Objetivo (opcional)</label>
+            <input type="date" id="alcFecha">
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="btnCancelarAlcancia">Cancelar</button>
+            <button type="button" class="btn-confirm" id="btnGuardarAlcancia">Crear Alcancía</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalConfirmar">
+    <div class="modal">
+        <div class="modal-title">¿Borrar alcancía?</div>
+        <p class="confirm-name" id="confirmNombre"></p>
+        <p class="confirm-msg"  id="confirmMsg"></p>
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="btnCancelarConfirm">Cancelar</button>
+            <button type="button" class="btn-confirm danger-confirm" id="btnConfirmarBorrar">Sí, borrar</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    const API = "http://127.0.0.1:8000/api";
+
+    // ─────────────────────────────────────
+    // UTILS
+    // ─────────────────────────────────────
+    function showToast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = `show ${type}`;
+        clearTimeout(t._timer);
+        t._timer = setTimeout(() => { t.className = ""; }, 3500);
+    }
+
+    function escHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+    function escAttr(s) { return String(s).replace(/"/g,"&quot;"); }
+
+    // ─────────────────────────────────────
+    // TOKENS
+    // ─────────────────────────────────────
+    const getTokens   = () => ({ access: sessionStorage.getItem("access"), refresh: sessionStorage.getItem("refresh") });
+    const saveTokens  = (a, r) => { sessionStorage.setItem("access", a); if (r) sessionStorage.setItem("refresh", r); };
+    const clearTokens = () => sessionStorage.clear();
+
+    async function refreshAccessToken() {
+        const { refresh } = getTokens();
+        if (!refresh) return null;
+        try {
+            const res = await fetch(`${API}/token/refresh/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refresh })
+            });
+            if (res.ok) { const d = await res.json(); saveTokens(d.access, null); return d.access; }
+        } catch (_) {}
+        return null;
+    }
+
+    async function authFetch(url, options = {}) {
+        let { access } = getTokens();
+        if (!access) throw new Error("NO_TOKEN");
+        const hdrs = (tok) => ({ "Content-Type": "application/json", ...(options.headers || {}), "Authorization": `Bearer ${tok}` });
+        let res = await fetch(url, { ...options, headers: hdrs(access) });
+        if (res.status === 401) {
+            const newAccess = await refreshAccessToken();
+            if (!newAccess) throw new Error("SESSION_EXPIRED");
+            res = await fetch(url, { ...options, headers: hdrs(newAccess) });
         }
-        setInterval(actualizarReloj, 1000);
-        actualizarReloj();
+        return res;
+    }
 
-        // --- PING AUTOMÁTICO PARA DESPERTAR A RENDER ---
-        async function despertarServidor() {
-            const btnAuth = document.getElementById('btn-auth-enviar');
-            const textoOriginal = btnAuth.textContent;
-            btnAuth.textContent = "CONECTANDO SERVIDOR...";
-            btnAuth.disabled = true;
-            
-            try {
-                // Hacemos una petición rápida al endpoint de movimientos (va a dar 401 pero despierta al server)
-                await fetch(`${API_BASE_URL}/movimientos/`);
-            } catch (e) {
-                console.log("Despertando servidor...");
-            } finally {
-                btnAuth.textContent = textoOriginal;
-                btnAuth.disabled = false;
-            }
+    function sessionExpired() {
+        showToast("Tu sesión expiró. Volvé a ingresar.", "error");
+        clearTokens();
+        setTimeout(() => {
+            document.getElementById("dashboardScreen").style.display = "none";
+            document.getElementById("loginScreen").style.display = "flex";
+        }, 2000);
+    }
+
+    // ─────────────────────────────────────
+    // LOGIN
+    // ─────────────────────────────────────
+    document.getElementById("loginBtn").onclick = async () => {
+        const btn    = document.getElementById("loginBtn");
+        const errEl  = document.getElementById("loginError");
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!username || !password) {
+            errEl.textContent = "Completá usuario y contraseña";
+            errEl.style.display = "block"; return;
         }
-        // Se ejecuta apenas abre la página
-        despertarServidor();
 
-        // --- MANEJO DE PASO ENTRE LOGIN Y REGISTRO ---
-        document.getElementById('btn-toggle-auth').addEventListener('click', () => {
-            modoLogin = !modoLogin;
-            const titulo = document.getElementById('auth-titulo');
-            const btnEnviar = document.getElementById('btn-auth-enviar');
-            const btnToggle = document.getElementById('btn-toggle-auth');
-            
-            if (modoLogin) {
-                titulo.innerHTML = "<span>//</span> INICIAR SESIÓN";
-                btnEnviar.textContent = "Ingresar";
-                btnToggle.textContent = "¿No tenés cuenta? Registrate acá";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>';
+        errEl.style.display = "none";
+
+        try {
+            const res = await fetch(`${API}/token/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                saveTokens(data.access, data.refresh);
+                showDashboard();
+                await cargarDashboard();
             } else {
-                titulo.innerHTML = "<span>//</span> REGISTRAR NUEVO USUARIO";
-                btnEnviar.textContent = "Crear Cuenta";
-                btnToggle.textContent = "¿Ya tenés cuenta? Iniciá sesión";
+                errEl.textContent = "Usuario o contraseña incorrectos";
+                errEl.style.display = "block";
             }
-        });
+        } catch (_) {
+            errEl.textContent = "No se puede conectar al servidor";
+            errEl.style.display = "block";
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = "Ingresar";
+        }
+    };
 
-        // --- AUTENTICACIÓN (LOGIN / REGISTRO) ---
-        document.getElementById('form-auth').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('auth-username').value;
-            const password = document.getElementById('auth-password').value;
-            const errorDiv = document.getElementById('auth-error');
-            const btnEnviar = document.getElementById('btn-auth-enviar');
-            
-            errorDiv.textContent = "";
-            const endpoint = modoLogin ? '/token/' : '/register/';
-            
-            btnEnviar.textContent = "PROCESANDO...";
-            btnEnviar.disabled = true;
+    document.getElementById("password").addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); document.getElementById("loginBtn").click(); }
+    });
 
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
+    // ─────────────────────────────────────
+    // LOGOUT
+    // ─────────────────────────────────────
+    document.getElementById("logoutBtn").onclick = () => {
+        clearTokens();
+        document.getElementById("dashboardScreen").style.display = "none";
+        document.getElementById("loginScreen").style.display = "flex";
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+    };
 
-                const data = await response.json();
+    function showDashboard() {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("dashboardScreen").style.display = "block";
+    }
 
-                if (!response.ok) {
-                    throw new Error(data.detail || data.username || "Error en las credenciales");
-                }
+    // ─────────────────────────────────────
+    // CARGAR DASHBOARD
+    // ─────────────────────────────────────
+    async function cargarDashboard() {
+        try {
+            const [safeboxRes, alcRes, movRes] = await Promise.all([
+                authFetch(`${API}/safeboxes/`),
+                authFetch(`${API}/alcancias/`),
+                authFetch(`${API}/movimientos/`)
+            ]);
 
-                // Guardar tokens si fue login, o loguear directo si fue registro
-                if (modoLogin) {
-                    localStorage.setItem('access_token', data.access);
-                    localStorage.setItem('refresh_token', data.refresh);
-                    cargarAplicacion();
-                } else {
-                    alert("Usuario creado con éxito. Ahora iniciá sesión.");
-                    modoLogin = true;
-                    document.getElementById('auth-titulo').innerHTML = "<span>//</span> INICIAR SESIÓN";
-                    btnEnviar.textContent = "Ingresar";
-                    document.getElementById('btn-toggle-auth').textContent = "¿No tenés cuenta? Registrate acá";
-                    document.getElementById('auth-password').value = "";
-                }
-            } catch (err) {
-                errorDiv.textContent = `CRITICAL_ERR: ${err.message}`;
-            } finally {
-                if (modoLogin) btnEnviar.textContent = "Ingresar";
-                btnEnviar.disabled = false;
+            if (safeboxRes.ok) {
+                const sb = await safeboxRes.json();
+                if (sb.length)
+                    document.getElementById("billeteraSaldo").textContent = `$${parseFloat(sb[0].billetera).toLocaleString("es-AR")}`;
             }
-        });
+            if (alcRes.ok) {
+                const alcs = await alcRes.json();
+                renderAlcanciasCard(alcs);
+                renderAlcanciasGrid(alcs);
+            }
+            if (movRes.ok) {
+                renderHistorial(await movRes.json());
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else { showToast("Error cargando datos", "error"); console.error(err); }
+        }
+    }
 
-        // --- CARGAR PANTALLA PRINCIPAL ---
-        function cargarAplicacion() {
-            const token = localStorage.getItem('access_token');
-            if (!token) return;
+    // ─────────────────────────────────────
+    // RENDER: card alcancía activa (arriba)
+    // ─────────────────────────────────────
+    function renderAlcanciasCard(alcancias) {
+        const activa = alcancias.find(a => a.activo);
+        if (activa) {
+            const actual   = parseFloat(activa.monto_actual);
+            const objetivo = parseFloat(activa.monto_objetivo);
+            const pct = objetivo > 0 ? Math.min(100, (actual / objetivo) * 100) : 0;
+            document.getElementById("alcanciaNombre").textContent   = activa.name;
+            document.getElementById("alcanciaProgreso").textContent = `$${actual.toLocaleString("es-AR")} de $${objetivo.toLocaleString("es-AR")} (${pct.toFixed(1)}%)`;
+            document.getElementById("progressFill").style.width     = `${pct}%`;
+        } else {
+            document.getElementById("alcanciaNombre").textContent   = "Sin alcancía activa";
+            document.getElementById("alcanciaProgreso").textContent = "Creá una nueva abajo ↓";
+            document.getElementById("progressFill").style.width     = "0%";
+        }
+    }
 
-            document.getElementById('seccion-auth').classList.add('oculto');
-            document.getElementById('seccion-app').classList.remove('oculto');
-            
-            obtenerMovimientos();
+    // ─────────────────────────────────────
+    // RENDER: grid todas las alcancías
+    // ─────────────────────────────────────
+    function renderAlcanciasGrid(alcancias) {
+        const grid = document.getElementById("alcanciasGrid");
+        grid.innerHTML = "";
+
+        if (!alcancias.length) {
+            grid.innerHTML = '<div class="empty-state">No tenés alcancías todavía</div>';
+            return;
         }
 
-        // --- TRAER MOVIMIENTOS DESDE RENDER ---
-        async function obtenerMovimientos() {
-            const token = localStorage.getItem('access_token');
-            const movError = document.getElementById('mov-error');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/movimientos/`, {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+        [...alcancias]
+            .sort((a, b) => { if (a.activo !== b.activo) return a.activo ? -1 : 1; return a.name.localeCompare(b.name); })
+            .forEach(alc => {
+                const actual   = parseFloat(alc.monto_actual);
+                const objetivo = parseFloat(alc.monto_objetivo);
+                const pct = objetivo > 0 ? Math.min(100, (actual / objetivo) * 100) : 0;
 
-                if (response.status === 401) {
-                    // Token expirado, desloguear
-                    logout();
-                    return;
-                }
-
-                const movimientos = await response.json();
-                renderizarMovimientos(movimientos);
-            } catch (err) {
-                movError.textContent = "ERR_NET: No se pudo conectar con el historial";
-            }
-        }
-
-        // --- RENDERIZAR EN HISTORIAL (FECHA AR / GRILLA FIJA) ---
-        function renderizarMovimientos(movimientos) {
-            const contenedor = document.getElementById('contenedor-movimientos');
-            const balanceMonto = document.getElementById('balance-monto');
-            contenedor.innerHTML = "";
-            
-            let total = 0;
-
-            movimientos.forEach(mov => {
-                const item = document.createElement('div');
-                item.className = "item-movimiento";
-
-                // Formatear el monto y acumular al total
-                const montoNum = parseFloat(mov.monto);
-                let signo = "";
-                let claseMonto = "";
-
-                if (mov.tipo === 'ingreso') {
-                    total += montoNum;
-                    signo = "+";
-                    claseMonto = "ingreso";
-                } else {
-                    total -= montoNum;
-                    signo = "-";
-                    claseMonto = "gasto";
-                }
-
-                // Formatear Fecha desde el backend (YYYY-MM-DD) a Local (DD/MM/AAAA)
-                let fechaFormateada = "00/00/0000";
-                if (mov.fecha) {
-                    const partes = mov.fecha.split('-');
-                    if (partes.length === 3) {
-                        fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                    }
-                }
-
-                item.innerHTML = `
-                    <div class="desc">${mov.descripcion}</div>
-                    <div class="monto ${claseMonto}">${signo}$${montoNum.toFixed(2)}</div>
-                    <div class="fecha-item">${fechaFormateada}</div>
+                const card = document.createElement("div");
+                card.className = `alcancia-card${alc.activo ? " activa" : ""}`;
+                card.innerHTML = `
+                    ${alc.activo ? '<span class="badge-activa">ACTIVA</span>' : ''}
+                    <div class="alcancia-card-name">${escHtml(alc.name)}</div>
+                    <div class="alcancia-card-fecha">
+                        Creada: ${alc.fecha_creacion}${alc.fecha_objetivo ? ' · Meta: ' + alc.fecha_objetivo : ''}
+                    </div>
+                    <div class="alcancia-card-montos">
+                        <span>$${actual.toLocaleString("es-AR")}</span> / $${objetivo.toLocaleString("es-AR")} (${pct.toFixed(1)}%)
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:${pct}%"></div>
+                    </div>
+                    <div class="alcancia-card-actions">
+                        ${!alc.activo ? `<button type="button" class="btn-sm activar" data-id="${alc.id}">Activar</button>` : ''}
+                        <button type="button" class="btn-sm danger" data-id="${alc.id}" data-nombre="${escAttr(alc.name)}" data-activa="${alc.activo}">Borrar</button>
+                    </div>
                 `;
-                contenedor.appendChild(item);
+                grid.appendChild(card);
             });
 
-            // Mostrar Balance final
-            balanceMonto.textContent = `$${total.toFixed(2)}`;
-            if (total >= 0) {
-                balanceMonto.style.color = "var(--neon-verde)";
-            } else {
-                balanceMonto.style.color = "var(--neon-rojo)";
-            }
-        }
-
-        // --- CREAR UN NUEVO MOVIMIENTO ---
-        document.getElementById('form-movimiento').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const descripcion = document.getElementById('mov-descripcion').value;
-            const monto = document.getElementById('mov-monto').value;
-            const tipo = document.getElementById('mov-tipo').value;
-            const movError = document.getElementById('mov-error');
-            const btnGuardar = document.getElementById('btn-guardar-movimiento');
-            const token = localStorage.getItem('access_token');
-
-            movError.textContent = "";
-            btnGuardar.textContent = "GUARDANDO...";
-            btnGuardar.disabled = true;
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/movimientos/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ descripcion, monto, tipo })
-                });
-
-                if (!response.ok) {
-                    throw new Error("No se pudo procesar el movimiento en el servidor");
-                }
-
-                // Limpiar formulario y recargar lista limpia
-                document.getElementById('form-movimiento').reset();
-                await obtenerMovimientos();
-            } catch (err) {
-                movError.textContent = `ERR_WRITE: ${err.message}`;
-            } finally {
-                btnGuardar.textContent = "Guardar Movimiento";
-                btnGuardar.disabled = false;
-            }
+        grid.querySelectorAll(".btn-sm.activar").forEach(btn => {
+            btn.onclick = () => activarAlcancia(parseInt(btn.dataset.id));
         });
+        grid.querySelectorAll(".btn-sm.danger").forEach(btn => {
+            btn.onclick = () => abrirConfirmarBorrar(parseInt(btn.dataset.id), btn.dataset.nombre, btn.dataset.activa === "true");
+        });
+    }
 
-        // --- LOGOUT ---
-        function logout() {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            document.getElementById('seccion-app').classList.add('oculto');
-            document.getElementById('seccion-auth').classList.remove('oculto');
-            document.getElementById('form-auth').reset();
-        }
-        document.getElementById('btn-logout').addEventListener('click', logout);
+    // ─────────────────────────────────────
+    // ACTIVAR ALCANCÍA
+    // ─────────────────────────────────────
+    async function activarAlcancia(id) {
+        try {
+            const alcancias = await (await authFetch(`${API}/alcancias//`)).json();
+            const actual    = alcancias.find(a => a.activo);
 
-        // Al iniciar, chequear si ya estaba logueado
-        if (localStorage.getItem('access_token')) {
-            cargarAplicacion();
+            if (actual && actual.id !== id) {
+                await authFetch(`${API}/alcancias/${actual.id}/`, {
+                    method: "PATCH", body: JSON.stringify({ activo: false })
+                });
+            }
+
+            const res = await authFetch(`${API}/alcancias/${id}/`, {
+                method: "PATCH", body: JSON.stringify({ activo: true })
+            });
+
+            if (res.ok) {
+                showToast("Alcancía activada ✓", "success");
+                const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
+                renderAlcanciasCard(nuevas);
+                renderAlcanciasGrid(nuevas);
+            } else {
+                showToast("Error al activar", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión", "error");
         }
-    </script>
+    }
+
+    // ─────────────────────────────────────
+    // BORRAR ALCANCÍA
+    // ─────────────────────────────────────
+    let _borrarId = null;
+
+    function abrirConfirmarBorrar(id, nombre, esActiva) {
+        _borrarId = id;
+        document.getElementById("confirmNombre").textContent = nombre;
+        document.getElementById("confirmMsg").textContent = esActiva
+            ? "⚠️ Es la alcancía activa. Los movimientos vinculados quedarán sin alcancía asignada."
+            : "Esta acción no se puede deshacer.";
+        document.getElementById("modalConfirmar").classList.add("open");
+    }
+
+    document.getElementById("btnCancelarConfirm").onclick = () => {
+        document.getElementById("modalConfirmar").classList.remove("open");
+        _borrarId = null;
+    };
+    document.getElementById("modalConfirmar").addEventListener("click", e => {
+        if (e.target === document.getElementById("modalConfirmar")) {
+            document.getElementById("modalConfirmar").classList.remove("open");
+            _borrarId = null;
+        }
+    });
+
+    document.getElementById("btnConfirmarBorrar").onclick = async () => {
+        if (!_borrarId) return;
+        const id  = _borrarId;
+        const btn = document.getElementById("btnConfirmarBorrar");
+        btn.disabled = true; btn.textContent = "Borrando…";
+        document.getElementById("modalConfirmar").classList.remove("open");
+        _borrarId = null;
+
+        try {
+            const res = await authFetch(`${API}/alcancias/${id}/`, { method: "DELETE" });
+            if (res.ok || res.status === 204) {
+                showToast("Alcancía eliminada", "success");
+                const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
+                renderAlcanciasCard(nuevas);
+                renderAlcanciasGrid(nuevas);
+            } else {
+                showToast("Error al borrar", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión", "error");
+        } finally {
+            btn.disabled = false; btn.textContent = "Sí, borrar";
+        }
+    };
+
+    // ─────────────────────────────────────
+    // MODAL: Nueva Alcancía
+    // ─────────────────────────────────────
+    const modalAlcancia = document.getElementById("modalAlcancia");
+
+    document.getElementById("btnNuevaAlcancia").onclick = () => {
+        document.getElementById("alcNombre").value   = "";
+        document.getElementById("alcObjetivo").value = "";
+        document.getElementById("alcFecha").value    = "";
+        modalAlcancia.classList.add("open");
+    };
+    document.getElementById("btnCancelarAlcancia").onclick = () => modalAlcancia.classList.remove("open");
+    modalAlcancia.addEventListener("click", e => { if (e.target === modalAlcancia) modalAlcancia.classList.remove("open"); });
+
+    document.getElementById("btnGuardarAlcancia").onclick = async () => {
+        const btn      = document.getElementById("btnGuardarAlcancia");
+        const nombre   = document.getElementById("alcNombre").value.trim();
+        const objetivo = parseFloat(document.getElementById("alcObjetivo").value);
+        const fecha    = document.getElementById("alcFecha").value;
+
+        if (!nombre || isNaN(objetivo) || objetivo <= 0) {
+            showToast("Nombre y monto objetivo son obligatorios", "error"); return;
+        }
+
+        btn.disabled = true; btn.textContent = "Creando…";
+
+        try {
+            const alcancias = await (await authFetch(`${API}/alcancias/`)).json();
+            const hayActiva = alcancias.some(a => a.activo);
+
+            const payload = {
+                name: nombre,
+                monto_objetivo: objetivo,
+                activo: !hayActiva,
+                ...(fecha ? { fecha_objetivo: fecha } : {})
+            };
+
+            const res = await authFetch(`${API}/alcancias/`, { method: "POST", body: JSON.stringify(payload) });
+
+            if (res.ok) {
+                modalAlcancia.classList.remove("open");
+                showToast(`"${nombre}" creada ✓`, "success");
+                const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
+                renderAlcanciasCard(nuevas);
+                renderAlcanciasGrid(nuevas);
+            } else {
+                const err = await res.json().catch(() => ({}));
+                showToast(err.error || "Error al crear alcancía", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión", "error");
+        } finally {
+            btn.disabled = false; btn.textContent = "Crear Alcancía";
+        }
+    };
+
+    // ─────────────────────────────────────
+    // RENDER HISTORIAL
+    // ─────────────────────────────────────
+    function renderHistorial(movimientos) {
+        const container = document.getElementById("historial");
+        container.innerHTML = "";
+        if (!movimientos.length) {
+            container.innerHTML = '<div class="empty-state">No hay movimientos aún</div>'; return;
+        }
+        [...movimientos].reverse().forEach(m => {
+            const monto = parseFloat(m.monto);
+            let montoTexto, montoClass;
+            if (m.tipo === "ingreso")    { montoTexto = `+$${monto.toLocaleString("es-AR")}`; montoClass = "ingreso"; }
+            else if (m.tipo === "gasto") { montoTexto = `-$${monto.toLocaleString("es-AR")}`; montoClass = "gasto"; }
+            else                         { montoTexto = `$${monto.toLocaleString("es-AR")}`;  montoClass = "ahorrar"; }
+            const div = document.createElement("div");
+            div.className = "mov-item";
+            div.innerHTML = `
+                <div>
+                    <div class="mov-desc">${escHtml(m.descripcion)}</div>
+                    <div class="mov-fecha">${m.fecha}</div>
+                </div>
+                <div class="mov-badge-wrap">
+                    <span class="mov-badge badge-${m.tipo}">${m.tipo === "ingreso" ? "ingreso" : m.tipo === "gasto" ? "gasto" : "ahorro"}</span>
+                </div>
+                <div class="mov-monto ${montoClass}">${montoTexto}</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    // ─────────────────────────────────────
+    // ACTUALIZAR SALDOS SUAVE (post-movimiento)
+    // ─────────────────────────────────────
+    async function actualizarSaldos() {
+        try {
+            const [safeboxRes, alcRes] = await Promise.all([
+                authFetch(`${API}/safeboxes/`),
+                authFetch(`${API}/alcancias/`)
+            ]);
+
+            await new Promise(r => setTimeout(r, 1200));
+
+            const els = ["billeteraSaldo","alcanciaNombre","alcanciaProgreso"].map(id => document.getElementById(id));
+            els.forEach(el => { el.classList.remove("updated"); el.classList.add("updating"); });
+            await new Promise(r => setTimeout(r, 260));
+
+            if (safeboxRes.ok) {
+                const sb = await safeboxRes.json();
+                if (sb.length) els[0].textContent = `$${parseFloat(sb[0].billetera).toLocaleString("es-AR")}`;
+            }
+            if (alcRes.ok) {
+                const alcs = await alcRes.json();
+                renderAlcanciasCard(alcs);
+                renderAlcanciasGrid(alcs);
+            }
+
+            els.forEach(el => { el.classList.remove("updating"); el.classList.add("updated"); });
+        } catch (err) { console.error("Error actualizando saldos:", err); }
+    }
+
+    function agregarMovimientoAlHistorial(m) {
+        const container = document.getElementById("historial");
+        const empty = container.querySelector(".empty-state");
+        if (empty) empty.remove();
+
+        const monto = parseFloat(m.monto);
+        let montoTexto, montoClass;
+        if (m.tipo === "ingreso")    { montoTexto = `+$${monto.toLocaleString("es-AR")}`; montoClass = "ingreso"; }
+        else if (m.tipo === "gasto") { montoTexto = `-$${monto.toLocaleString("es-AR")}`; montoClass = "gasto"; }
+        else                         { montoTexto = `$${monto.toLocaleString("es-AR")}`;  montoClass = "ahorrar"; }
+
+        const div = document.createElement("div");
+        div.className = "mov-item";
+        div.style.animation = "fadeIn 0.3s ease";
+        div.innerHTML = `
+            <div>
+                <div class="mov-desc">${escHtml(m.descripcion)}</div>
+                <div class="mov-fecha">${m.fecha}</div>
+            </div>
+            <div class="mov-badge-wrap">
+                <span class="mov-badge badge-${m.tipo}">${m.tipo === "ingreso" ? "ingreso" : m.tipo === "gasto" ? "gasto" : "ahorro"}</span>
+            </div>
+            <div class="mov-monto ${montoClass}">${montoTexto}</div>
+        `;
+        container.insertBefore(div, container.firstChild);
+    }
+
+    // ─────────────────────────────────────
+    // TIPO → mostrar/ocultar destino
+    // ─────────────────────────────────────
+    document.getElementById("tipo").addEventListener("change", function() {
+        const destinoGroup = document.getElementById("destinoGroup");
+        if (this.value === "ingreso") {
+            destinoGroup.classList.remove("hidden-field");
+            destinoGroup.style.visibility = "visible";
+        } else {
+            destinoGroup.classList.add("hidden-field");
+            destinoGroup.style.visibility = "hidden";
+        }
+    });
+
+    // ─────────────────────────────────────
+    // CREAR MOVIMIENTO
+    // ─────────────────────────────────────
+    document.getElementById("crearMovimientoBtn").onclick = async () => {
+        const btn         = document.getElementById("crearMovimientoBtn");
+        const descripcion = document.getElementById("descripcion").value.trim();
+        const monto       = parseFloat(document.getElementById("monto").value);
+        const tipo        = document.getElementById("tipo").value;
+        let   destino     = tipo === "ingreso" ? document.getElementById("destino").value : null;
+
+        if (!descripcion || isNaN(monto) || monto <= 0) {
+            showToast("Completá todos los campos correctamente", "error"); return;
+        }
+
+        btn.disabled = true; btn.textContent = "…";
+
+        try {
+            const payload = { fecha: new Date().toISOString().split("T")[0], descripcion, tipo, monto, destino };
+
+            // Si es un ahorro directo ("ahorrar"), forzamos el destino a la alcancía activa por debajo
+            if (tipo === "ahorrar") {
+                destino = "alcancia";
+                payload.destino = "alcancia";
+            }
+
+            if (destino === "alcancia" || tipo === "ahorrar") {
+                const alcancias = await (await authFetch(`${API}/alcancias/`)).json();
+                const activa    = alcancias.find(a => a.activo);
+                if (!activa) { 
+                    showToast("No hay una alcancía activa para guardar el dinero", "error"); 
+                    btn.disabled = false; btn.textContent = "Crear";
+                    return; 
+                }
+                payload.alcancia = activa.id;
+            }
+
+            const res = await authFetch(`${API}/movimientos/`, { method: "POST", body: JSON.stringify(payload) });
+
+            if (res.ok) {
+                const movCreado = await res.json();
+                document.getElementById("descripcion").value = "";
+                document.getElementById("monto").value = "";
+                showToast("Movimiento registrado ✓", "success");
+                agregarMovimientoAlHistorial(movCreado);
+                await actualizarSaldos();
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                showToast(errorData.error || "Error al crear movimiento", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión con el servidor", "error");
+        } finally {
+            btn.disabled = false; btn.textContent = "Crear";
+        }
+    };
+
+    ["descripcion", "monto"].forEach(id => {
+        document.getElementById(id).addEventListener("keydown", e => {
+            if (e.key === "Enter") { e.preventDefault(); document.getElementById("crearMovimientoBtn").click(); }
+        });
+    });
+
+    document.addEventListener("submit", e => e.preventDefault());
+
+    // ─────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────
+    window.addEventListener("DOMContentLoaded", () => {
+        // Inicializar el estado de visibilidad del grupo de destino según el tipo seleccionado
+        const tipoSelect = document.getElementById("tipo");
+        const destinoGroup = document.getElementById("destinoGroup");
+        if (tipoSelect.value !== "ingreso") {
+            destinoGroup.classList.add("hidden-field");
+            destinoGroup.style.visibility = "hidden";
+        }
+
+        const { access } = getTokens();
+        if (access) { showDashboard(); cargarDashboard(); }
+    });
+</script>
 </body>
 </html>
