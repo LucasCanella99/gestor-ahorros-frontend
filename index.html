@@ -26,9 +26,39 @@
             color: var(--text);
             font-family: 'Syne', sans-serif;
             min-height: 100vh;
+            position: relative;
         }
 
-        /* ===== LOGIN ===== */
+        /* ===== RELOJ CIBERPUNK ===== */
+        #cyberClock {
+            position: fixed;
+            top: 14px;
+            right: 16px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 8px rgba(200,241,53,0.35);
+            letter-spacing: 1.5px;
+            z-index: 100;
+            background: rgba(15,15,15,0.88);
+            padding: 6px 12px;
+            border-radius: 7px;
+            border-right: 2px solid var(--accent2);
+            line-height: 1.5;
+            pointer-events: none;
+            backdrop-filter: blur(4px);
+            text-align: right;
+        }
+        #cyberClock .clock-time { font-size: 0.88rem; display: block; }
+        #cyberClock .clock-date { font-size: 0.6rem; color: var(--muted); display: block; }
+        #cyberClock .clock-sys  { font-size: 0.55rem; color: var(--accent2); display: block; letter-spacing: 1px; }
+        @media (max-width: 500px) {
+            #cyberClock { padding: 4px 8px; top: 8px; right: 8px; }
+            #cyberClock .clock-time { font-size: 0.72rem; }
+            #cyberClock .clock-date, #cyberClock .clock-sys { display: none; }
+        }
+
+        /* ===== LOGIN / REGISTER ===== */
         #loginScreen {
             min-height: 100vh;
             display: flex;
@@ -44,7 +74,7 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 48px 40px;
+            padding: 40px 40px;
             width: 380px;
             position: relative;
             overflow: hidden;
@@ -57,7 +87,7 @@
             background: linear-gradient(90deg, var(--accent), var(--accent2));
         }
         .login-logo { font-size: 2.5rem; margin-bottom: 6px; text-align: center; }
-        .login-title { font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 32px; letter-spacing: -0.5px; }
+        .login-title { font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 24px; letter-spacing: -0.5px; }
 
         .field { margin-bottom: 14px; }
         .field label { display: block; font-size: 0.72rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'Space Mono', monospace; }
@@ -68,6 +98,9 @@
         .btn-primary:hover { opacity: 0.88; }
         .btn-primary:active { transform: scale(0.98); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .toggle-auth { text-align: center; margin-top: 16px; font-size: 0.8rem; color: var(--muted); font-family: 'Space Mono', monospace; }
+        .toggle-auth span#btnToggleAuth { color: var(--accent2); cursor: pointer; text-decoration: underline; font-weight: bold; }
 
         .error-msg { color: var(--danger); font-size: 0.82rem; text-align: center; margin-top: 12px; font-family: 'Space Mono', monospace; display: none; }
 
@@ -112,7 +145,7 @@
         .btn-create:hover { opacity: 0.85; }
         .btn-create:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        #destinoGroup { transition: opacity 0.2s, visibility 0.2s; }
+        #destinoGroup { transition: opacity 0.2s; }
         #destinoGroup.hidden-field { opacity: 0.3; pointer-events: none; }
 
         /* ===== ALCANCÍAS GRID ===== */
@@ -141,16 +174,18 @@
 
         /* ===== HISTORIAL ===== */
         .historial-list { max-height: 420px; overflow-y: auto; margin-top: 16px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-        .mov-item { display: grid; grid-template-columns: 1fr 90px 110px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+        .mov-item { display: grid; grid-template-columns: 1fr 90px 120px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
         .mov-item:last-child { border-bottom: none; }
-        .mov-desc { font-size: 0.9rem; font-weight: 600; }
+        .mov-desc-wrapper { min-width: 0; }
+        .mov-desc { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .mov-fecha { font-size: 0.72rem; color: var(--muted); font-family: 'Space Mono', monospace; }
-        .mov-badge-wrap { display: flex; justify-content: center; }
-        .mov-monto { font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: 700; white-space: nowrap; text-align: right; }
+        .mov-badge-container { display: flex; justify-content: center; }
+        .mov-badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; font-family: 'Space Mono', monospace; text-align: center; white-space: nowrap; }
+        .mov-monto-container { display: flex; justify-content: flex-end; }
+        .mov-monto { font-family: 'Space Mono', monospace; font-size: 0.88rem; font-weight: 700; white-space: nowrap; }
         .mov-monto.ingreso { color: var(--accent2); }
         .mov-monto.gasto   { color: var(--danger); }
         .mov-monto.ahorrar { color: var(--blue); }
-        .mov-badge { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; font-family: 'Space Mono', monospace; text-align: center; }
         .badge-ingreso { background: rgba(53,241,160,0.12); color: var(--accent2); }
         .badge-gasto   { background: rgba(241,78,53,0.12); color: var(--danger); }
         .badge-ahorrar { background: rgba(77,166,255,0.12); color: var(--blue); }
@@ -191,10 +226,22 @@
 </head>
 <body>
 
+<div id="cyberClock">
+    <span class="clock-time">00:00:00</span>
+    <span class="clock-date">--/--/----</span>
+    <span class="clock-sys">SYS_OK</span>
+</div>
+
 <div id="loginScreen">
     <div class="login-card">
-        <div class="login-logo">🐃</div>
-        <h1 class="login-title">Gestor de Ahorros</h1>
+        <div class="login-logo" id="authLogo">🐃</div>
+        <h1 class="login-title" id="authTitle">Gestor de Ahorros</h1>
+        
+        <div class="field" id="emailField" style="display: none;">
+            <label>Correo Electrónico</label>
+            <input type="email" id="email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+
         <div class="field">
             <label>Usuario</label>
             <input type="text" id="username" placeholder="tu_usuario" autocomplete="username">
@@ -203,7 +250,14 @@
             <label>Contraseña</label>
             <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
         </div>
+        
         <button type="button" class="btn-primary" id="loginBtn">Ingresar</button>
+        
+        <p class="toggle-auth">
+            <span id="toggleAuthPrefix">¿No tenés cuenta?</span> 
+            <span id="btnToggleAuth">Registrate</span>
+        </p>
+        
         <p class="error-msg" id="loginError"></p>
     </div>
 </div>
@@ -314,10 +368,68 @@
 <div id="toast"></div>
 
 <script>
-    const API = "http://127.0.0.1:8000/api";
+    const API = "https://gestor-ahorros-backend.onrender.com/api";
+    
+    // Estado de la autenticación: 'login' o 'register'
+    let authMode = "login";
 
     // ─────────────────────────────────────
-    // UTILS
+    // RELOJ DINÁMICO CIBERPUNK
+    // ─────────────────────────────────────
+    function updateClock() {
+        const now = new Date();
+        const hrs = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const sec = String(now.getSeconds()).padStart(2, '0');
+        const dia = String(now.getDate()).padStart(2,'0');
+        const mes = String(now.getMonth()+1).padStart(2,'0');
+        const año = now.getFullYear();
+        document.querySelector("#cyberClock .clock-time").textContent = `${hrs}:${min}:${sec}`;
+        document.querySelector("#cyberClock .clock-date").textContent = `${dia}/${mes}/${año}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ─────────────────────────────────────
+    // FORMATO DE FECHAS (DD/MM/AAAA)
+    // ─────────────────────────────────────
+    function formatearFechaLocal(fechaStr) {
+        if (!fechaStr) return "—";
+        const partes = fechaStr.split('T')[0].split('-');
+        if (partes.length === 3) {
+            return `${partes[2]}/${partes[1]}/${partes[0]}`; 
+        }
+        return fechaStr;
+    }
+
+    // ─────────────────────────────────────
+    // INTERCAMBIAR LOGIN / REGISTRO
+    // ─────────────────────────────────────
+    document.getElementById("btnToggleAuth").onclick = () => {
+        const errEl = document.getElementById("loginError");
+        errEl.style.display = "none";
+        
+        if (authMode === "login") {
+            authMode = "register";
+            document.getElementById("authTitle").textContent = "Registrar Usuario";
+            document.getElementById("authLogo").textContent = "⚙️";
+            document.getElementById("emailField").style.display = "block";
+            document.getElementById("loginBtn").textContent = "Registrarse";
+            document.getElementById("toggleAuthPrefix").textContent = "¿Ya tenés cuenta?";
+            document.getElementById("btnToggleAuth").textContent = "Ingresá";
+        } else {
+            authMode = "login";
+            document.getElementById("authTitle").textContent = "Gestor de Ahorros";
+            document.getElementById("authLogo").textContent = "🐃";
+            document.getElementById("emailField").style.display = "none";
+            document.getElementById("loginBtn").textContent = "Ingresar";
+            document.getElementById("toggleAuthPrefix").textContent = "¿No tenés cuenta?";
+            document.getElementById("btnToggleAuth").textContent = "Registrate";
+        }
+    };
+
+    // ─────────────────────────────────────
+    // UTILS TOAST & ESCAPE
     // ─────────────────────────────────────
     function showToast(msg, type = "success") {
         const t = document.getElementById("toast");
@@ -331,7 +443,7 @@
     function escAttr(s) { return String(s).replace(/"/g,"&quot;"); }
 
     // ─────────────────────────────────────
-    // TOKENS
+    // TOKENS LOCAL STORAGE / SESSION STORAGE
     // ─────────────────────────────────────
     const getTokens   = () => ({ access: sessionStorage.getItem("access"), refresh: sessionStorage.getItem("refresh") });
     const saveTokens  = (a, r) => { sessionStorage.setItem("access", a); if (r) sessionStorage.setItem("refresh", r); };
@@ -374,16 +486,17 @@
     }
 
     // ─────────────────────────────────────
-    // LOGIN
+    // PROCESAR ENTRADA (BOTÓN PRINCIPAL)
     // ─────────────────────────────────────
     document.getElementById("loginBtn").onclick = async () => {
         const btn    = document.getElementById("loginBtn");
         const errEl  = document.getElementById("loginError");
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value;
+        const email = document.getElementById("email").value.trim();
 
-        if (!username || !password) {
-            errEl.textContent = "Completá usuario y contraseña";
+        if (!username || !password || (authMode === "register" && !email)) {
+            errEl.textContent = "Completá todos los campos requeridos";
             errEl.style.display = "block"; return;
         }
 
@@ -391,29 +504,91 @@
         btn.innerHTML = '<span class="spinner"></span>';
         errEl.style.display = "none";
 
-        try {
-            const res = await fetch(`${API}/token/`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            });
-            if (res.ok) {
-                const data = await res.json();
-                saveTokens(data.access, data.refresh);
-                showDashboard();
-                await cargarDashboard();
-            } else {
-                errEl.textContent = "Usuario o contraseña incorrectos";
+        if (authMode === "login") {
+            try {
+                const res = await fetch(`${API}/token/`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    saveTokens(data.access, data.refresh);
+                    showDashboard();
+                    await cargarDashboard();
+                } else {
+                    errEl.textContent = "Usuario o contraseña incorrectos";
+                    errEl.style.display = "block";
+                }
+            } catch (_) {
+                errEl.textContent = "No se puede conectar al servidor";
                 errEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Ingresar";
             }
-        } catch (_) {
-            errEl.textContent = "No se puede conectar al servidor";
-            errEl.style.display = "block";
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = "Ingresar";
+        } else {
+            try {
+                const res = await fetch(`${API}/register/`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, email })
+                });
+                if (res.ok) {
+                    showToast("Registro exitoso. ¡Iniciando sesión!", "success");
+                    
+                    const loginRes = await fetch(`${API}/token/`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+                    if (loginRes.ok) {
+                        const data = await loginRes.json();
+                        saveTokens(data.access, data.refresh);
+                        showDashboard();
+                        await cargarDashboard();
+                        document.getElementById("btnToggleAuth").click();
+                    }
+                } else {
+                    const errores = await res.json();
+                    if (errores.email) {
+                        errEl.textContent = "Ese correo ya está registrado.";
+                    } else if (errores.username) {
+                        errEl.textContent = "Ese nombre de usuario ya existe.";
+                    } else if (errores.password) {
+                        errEl.textContent = "Contraseña inválida (mínimo 8 caracteres).";
+                    } else {
+                        errEl.textContent = "Error al procesar los datos.";
+                    }
+                    errEl.style.display = "block";
+                }
+            } catch (_) {
+                errEl.textContent = "Error de conexión con el servidor";
+                errEl.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = "Registrarse";
+            }
         }
     };
+
+    // ─────────────────────────────────────
+    // WAKE UP RENDER
+    // ─────────────────────────────────────
+    async function wakeUpServer() {
+        const btn   = document.getElementById("loginBtn");
+        const errEl = document.getElementById("loginError");
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Conectando servidor…';
+        errEl.style.display = "none";
+        try {
+            await fetch(`${API}/token/`, { method: "POST", headers: { "Content-Type": "application/json" }, body: '{}' });
+        } catch (_) {}
+        btn.disabled = false;
+        btn.innerHTML = authMode === "login" ? "Ingresar" : "Registrarse";
+    }
+
+    wakeUpServer();
 
     document.getElementById("password").addEventListener("keydown", e => {
         if (e.key === "Enter") { e.preventDefault(); document.getElementById("loginBtn").click(); }
@@ -428,6 +603,7 @@
         document.getElementById("loginScreen").style.display = "flex";
         document.getElementById("username").value = "";
         document.getElementById("password").value = "";
+        document.getElementById("email").value = "";
     };
 
     function showDashboard() {
@@ -465,9 +641,6 @@
         }
     }
 
-    // ─────────────────────────────────────
-    // RENDER: card alcancía activa (arriba)
-    // ─────────────────────────────────────
     function renderAlcanciasCard(alcancias) {
         const activa = alcancias.find(a => a.activo);
         if (activa) {
@@ -484,9 +657,6 @@
         }
     }
 
-    // ─────────────────────────────────────
-    // RENDER: grid todas las alcancías
-    // ─────────────────────────────────────
     function renderAlcanciasGrid(alcancias) {
         const grid = document.getElementById("alcanciasGrid");
         grid.innerHTML = "";
@@ -509,7 +679,7 @@
                     ${alc.activo ? '<span class="badge-activa">ACTIVA</span>' : ''}
                     <div class="alcancia-card-name">${escHtml(alc.name)}</div>
                     <div class="alcancia-card-fecha">
-                        Creada: ${alc.fecha_creacion}${alc.fecha_objetivo ? ' · Meta: ' + alc.fecha_objetivo : ''}
+                        Creada: ${formatearFechaLocal(alc.fecha_creacion)}${alc.fecha_objetivo ? ' · Meta: ' + formatearFechaLocal(alc.fecha_objetivo) : ''}
                     </div>
                     <div class="alcancia-card-montos">
                         <span>$${actual.toLocaleString("es-AR")}</span> / $${objetivo.toLocaleString("es-AR")} (${pct.toFixed(1)}%)
@@ -533,12 +703,45 @@
         });
     }
 
-    // ─────────────────────────────────────
-    // ACTIVAR ALCANCÍA
-    // ─────────────────────────────────────
+    function renderHistorial(movimientos) {
+        const histContainer = document.getElementById("historial");
+        histContainer.innerHTML = "";
+
+        if (!movimientos.length) {
+            histContainer.innerHTML = '<div class="empty-state">No hay movimientos registrados</div>';
+            return;
+        }
+
+        movimientos.sort((a, b) => b.id - a.id);
+
+        movimientos.forEach(mov => {
+            const item = document.createElement("div");
+            item.className = "mov-item";
+            
+            let signo = "";
+            if (mov.tipo === "ingreso") signo = "+";
+            else if (mov.tipo === "gasto") signo = "-";
+            const montoFormateado = parseFloat(mov.monto).toLocaleString("es-AR");
+
+            item.innerHTML = `
+                <div class="mov-desc-wrapper">
+                    <div class="mov-desc">${escHtml(mov.descripcion)}</div>
+                    <div class="mov-fecha">${formatearFechaLocal(mov.fecha)}</div>
+                </div>
+                <div class="mov-badge-container">
+                    <span class="mov-badge badge-${mov.tipo}">${mov.tipo}</span>
+                </div>
+                <div class="mov-monto-container">
+                    <span class="mov-monto ${mov.tipo}">${signo}$${montoFormateado}</span>
+                </div>
+            `;
+            histContainer.appendChild(item);
+        });
+    }
+
     async function activarAlcancia(id) {
         try {
-            const alcancias = await (await authFetch(`${API}/alcancias//`)).json();
+            const alcancias = await (await authFetch(`${API}/alcancias/`)).json();
             const actual    = alcancias.find(a => a.activo);
 
             if (actual && actual.id !== id) {
@@ -605,6 +808,7 @@
                 const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
                 renderAlcanciasCard(nuevas);
                 renderAlcanciasGrid(nuevas);
+                await cargarDashboard();
             } else {
                 showToast("Error al borrar", "error");
             }
@@ -617,7 +821,147 @@
     };
 
     // ─────────────────────────────────────
-    // MODAL: Nueva Alcancía
+    // ACTUALIZAR SALDOS SUAVE
+    // ─────────────────────────────────────
+    async function actualizarSaldos() {
+        try {
+            const [safeboxRes, alcRes] = await Promise.all([
+                authFetch(`${API}/safeboxes/`),
+                authFetch(`${API}/alcancias/`)
+            ]);
+
+            await new Promise(r => setTimeout(r, 1200));
+
+            const els = ["billeteraSaldo","alcanciaNombre","alcanciaProgreso"].map(id => document.getElementById(id));
+            els.forEach(el => { el.classList.remove("updated"); el.classList.add("updating"); });
+            await new Promise(r => setTimeout(r, 260));
+
+            if (safeboxRes.ok) {
+                const sb = await safeboxRes.json();
+                if (sb.length) els[0].textContent = `$${parseFloat(sb[0].billetera).toLocaleString("es-AR")}`;
+            }
+            if (alcRes.ok) {
+                const alcs = await alcRes.json();
+                renderAlcanciasCard(alcs);
+                renderAlcanciasGrid(alcs);
+            }
+
+            els.forEach(el => { el.classList.remove("updating"); el.classList.add("updated"); });
+        } catch (err) { console.error("Error actualizando saldos:", err); }
+    }
+
+    function agregarMovimientoAlHistorial(m) {
+        const container = document.getElementById("historial");
+        const empty = container.querySelector(".empty-state");
+        if (empty) empty.remove();
+
+        const monto = parseFloat(m.monto);
+        let signo = "";
+        if (m.tipo === "ingreso") signo = "+";
+        else if (m.tipo === "gasto") signo = "-";
+        const montoFormateado = monto.toLocaleString("es-AR");
+
+        const div = document.createElement("div");
+        div.className = "mov-item";
+        div.style.animation = "fadeIn 0.3s ease";
+        div.innerHTML = `
+            <div class="mov-desc-wrapper">
+                <div class="mov-desc">${escHtml(m.descripcion)}</div>
+                <div class="mov-fecha">${formatearFechaLocal(m.fecha)}</div>
+            </div>
+            <div class="mov-badge-container">
+                <span class="mov-badge badge-${m.tipo}">${m.tipo}</span>
+            </div>
+            <div class="mov-monto-container">
+                <span class="mov-monto ${m.tipo}">${signo}$${montoFormateado}</span>
+            </div>
+        `;
+        container.insertBefore(div, container.firstChild);
+    }
+
+    // ─────────────────────────────────────
+    // DINÁMICA SELECT DE TIPO (OCULTAR / MOSTRAR DESTINO)
+    // ─────────────────────────────────────
+    document.getElementById("tipo").addEventListener("change", function() {
+        const destinoGroup = document.getElementById("destinoGroup");
+        const destinoSelect = document.getElementById("destino");
+        if (this.value === "ingreso") {
+            destinoGroup.classList.remove("hidden-field");
+            destinoGroup.style.visibility = "visible";
+        } else if (this.value === "ahorrar") {
+            destinoSelect.value = "alcancia";
+            destinoGroup.classList.add("hidden-field");
+            destinoGroup.style.visibility = "hidden";
+        } else {
+            destinoGroup.classList.add("hidden-field");
+            destinoGroup.style.visibility = "hidden";
+        }
+    });
+
+    // ─────────────────────────────────────
+    // CREAR MOVIMIENTO (CORREGIDO Y CONECTADO)
+    // ─────────────────────────────────────
+    document.getElementById("crearMovimientoBtn").onclick = async () => {
+        const btn         = document.getElementById("crearMovimientoBtn");
+        const descripcion = document.getElementById("descripcion").value.trim();
+        const monto       = parseFloat(document.getElementById("monto").value);
+        const tipo        = document.getElementById("tipo").value;
+        let   destino     = tipo === "ingreso" ? document.getElementById("destino").value : null;
+
+        if (!descripcion || isNaN(monto) || monto <= 0) {
+            showToast("Completá descripción y monto válido", "error"); return;
+        }
+
+        btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+        try {
+            const payload = { 
+                fecha: new Date().toISOString().split("T")[0], 
+                descripcion, 
+                tipo, 
+                monto, 
+                destino 
+            };
+
+            if (tipo === "ahorrar") {
+                destino = "alcancia";
+                payload.destino = "alcancia";
+            }
+
+            if (destino === "alcancia" || tipo === "ahorrar") {
+                const alcancias = await (await authFetch(`${API}/alcancias/`)).json();
+                const activa    = alcancias.find(a => a.activo);
+                if (!activa) { 
+                    showToast("No hay una alcancía activa asignada", "error"); 
+                    btn.disabled = false; btn.innerHTML = "Crear";
+                    return; 
+                }
+                payload.alcancia = activa.id;
+            }
+
+            const res = await authFetch(`${API}/movimientos/`, { method: "POST", body: JSON.stringify(payload) });
+
+            if (res.ok) {
+                const movCreado = await res.json();
+                document.getElementById("descripcion").value = "";
+                document.getElementById("monto").value = "";
+                showToast("Movimiento registrado ✓", "success");
+                agregarMovimientoAlHistorial(movCreado);
+                await actualizarSaldos();
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                showToast(errorData.error || "Error al crear movimiento", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión con el servidor", "error");
+        } finally {
+            btn.disabled = false; btn.innerHTML = "Crear";
+        }
+    };
+
+    // ─────────────────────────────────────
+    // MODAL NUEVA ALCANCÍA (ABRIR, CERRAR Y GUARDAR)
     // ─────────────────────────────────────
     const modalAlcancia = document.getElementById("modalAlcancia");
 
@@ -627,8 +971,12 @@
         document.getElementById("alcFecha").value    = "";
         modalAlcancia.classList.add("open");
     };
+    
     document.getElementById("btnCancelarAlcancia").onclick = () => modalAlcancia.classList.remove("open");
-    modalAlcancia.addEventListener("click", e => { if (e.target === modalAlcancia) modalAlcancia.classList.remove("open"); });
+    
+    modalAlcancia.addEventListener("click", e => { 
+        if (e.target === modalAlcancia) modalAlcancia.classList.remove("open"); 
+    });
 
     document.getElementById("btnGuardarAlcancia").onclick = async () => {
         const btn      = document.getElementById("btnGuardarAlcancia");
@@ -673,165 +1021,6 @@
         }
     };
 
-    // ─────────────────────────────────────
-    // RENDER HISTORIAL
-    // ─────────────────────────────────────
-    function renderHistorial(movimientos) {
-        const container = document.getElementById("historial");
-        container.innerHTML = "";
-        if (!movimientos.length) {
-            container.innerHTML = '<div class="empty-state">No hay movimientos aún</div>'; return;
-        }
-        [...movimientos].reverse().forEach(m => {
-            const monto = parseFloat(m.monto);
-            let montoTexto, montoClass;
-            if (m.tipo === "ingreso")    { montoTexto = `+$${monto.toLocaleString("es-AR")}`; montoClass = "ingreso"; }
-            else if (m.tipo === "gasto") { montoTexto = `-$${monto.toLocaleString("es-AR")}`; montoClass = "gasto"; }
-            else                         { montoTexto = `$${monto.toLocaleString("es-AR")}`;  montoClass = "ahorrar"; }
-            const div = document.createElement("div");
-            div.className = "mov-item";
-            div.innerHTML = `
-                <div>
-                    <div class="mov-desc">${escHtml(m.descripcion)}</div>
-                    <div class="mov-fecha">${m.fecha}</div>
-                </div>
-                <div class="mov-badge-wrap">
-                    <span class="mov-badge badge-${m.tipo}">${m.tipo === "ingreso" ? "ingreso" : m.tipo === "gasto" ? "gasto" : "ahorro"}</span>
-                </div>
-                <div class="mov-monto ${montoClass}">${montoTexto}</div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    // ─────────────────────────────────────
-    // ACTUALIZAR SALDOS SUAVE (post-movimiento)
-    // ─────────────────────────────────────
-    async function actualizarSaldos() {
-        try {
-            const [safeboxRes, alcRes] = await Promise.all([
-                authFetch(`${API}/safeboxes/`),
-                authFetch(`${API}/alcancias/`)
-            ]);
-
-            await new Promise(r => setTimeout(r, 1200));
-
-            const els = ["billeteraSaldo","alcanciaNombre","alcanciaProgreso"].map(id => document.getElementById(id));
-            els.forEach(el => { el.classList.remove("updated"); el.classList.add("updating"); });
-            await new Promise(r => setTimeout(r, 260));
-
-            if (safeboxRes.ok) {
-                const sb = await safeboxRes.json();
-                if (sb.length) els[0].textContent = `$${parseFloat(sb[0].billetera).toLocaleString("es-AR")}`;
-            }
-            if (alcRes.ok) {
-                const alcs = await alcRes.json();
-                renderAlcanciasCard(alcs);
-                renderAlcanciasGrid(alcs);
-            }
-
-            els.forEach(el => { el.classList.remove("updating"); el.classList.add("updated"); });
-        } catch (err) { console.error("Error actualizando saldos:", err); }
-    }
-
-    function agregarMovimientoAlHistorial(m) {
-        const container = document.getElementById("historial");
-        const empty = container.querySelector(".empty-state");
-        if (empty) empty.remove();
-
-        const monto = parseFloat(m.monto);
-        let montoTexto, montoClass;
-        if (m.tipo === "ingreso")    { montoTexto = `+$${monto.toLocaleString("es-AR")}`; montoClass = "ingreso"; }
-        else if (m.tipo === "gasto") { montoTexto = `-$${monto.toLocaleString("es-AR")}`; montoClass = "gasto"; }
-        else                         { montoTexto = `$${monto.toLocaleString("es-AR")}`;  montoClass = "ahorrar"; }
-
-        const div = document.createElement("div");
-        div.className = "mov-item";
-        div.style.animation = "fadeIn 0.3s ease";
-        div.innerHTML = `
-            <div>
-                <div class="mov-desc">${escHtml(m.descripcion)}</div>
-                <div class="mov-fecha">${m.fecha}</div>
-            </div>
-            <div class="mov-badge-wrap">
-                <span class="mov-badge badge-${m.tipo}">${m.tipo === "ingreso" ? "ingreso" : m.tipo === "gasto" ? "gasto" : "ahorro"}</span>
-            </div>
-            <div class="mov-monto ${montoClass}">${montoTexto}</div>
-        `;
-        container.insertBefore(div, container.firstChild);
-    }
-
-    // ─────────────────────────────────────
-    // TIPO → mostrar/ocultar destino
-    // ─────────────────────────────────────
-    document.getElementById("tipo").addEventListener("change", function() {
-        const destinoGroup = document.getElementById("destinoGroup");
-        if (this.value === "ingreso") {
-            destinoGroup.classList.remove("hidden-field");
-            destinoGroup.style.visibility = "visible";
-        } else {
-            destinoGroup.classList.add("hidden-field");
-            destinoGroup.style.visibility = "hidden";
-        }
-    });
-
-    // ─────────────────────────────────────
-    // CREAR MOVIMIENTO
-    // ─────────────────────────────────────
-    document.getElementById("crearMovimientoBtn").onclick = async () => {
-        const btn         = document.getElementById("crearMovimientoBtn");
-        const descripcion = document.getElementById("descripcion").value.trim();
-        const monto       = parseFloat(document.getElementById("monto").value);
-        const tipo        = document.getElementById("tipo").value;
-        let   destino     = tipo === "ingreso" ? document.getElementById("destino").value : null;
-
-        if (!descripcion || isNaN(monto) || monto <= 0) {
-            showToast("Completá todos los campos correctamente", "error"); return;
-        }
-
-        btn.disabled = true; btn.textContent = "…";
-
-        try {
-            const payload = { fecha: new Date().toISOString().split("T")[0], descripcion, tipo, monto, destino };
-
-            // Si es un ahorro directo ("ahorrar"), forzamos el destino a la alcancía activa por debajo
-            if (tipo === "ahorrar") {
-                destino = "alcancia";
-                payload.destino = "alcancia";
-            }
-
-            if (destino === "alcancia" || tipo === "ahorrar") {
-                const alcancias = await (await authFetch(`${API}/alcancias/`)).json();
-                const activa    = alcancias.find(a => a.activo);
-                if (!activa) { 
-                    showToast("No hay una alcancía activa para guardar el dinero", "error"); 
-                    btn.disabled = false; btn.textContent = "Crear";
-                    return; 
-                }
-                payload.alcancia = activa.id;
-            }
-
-            const res = await authFetch(`${API}/movimientos/`, { method: "POST", body: JSON.stringify(payload) });
-
-            if (res.ok) {
-                const movCreado = await res.json();
-                document.getElementById("descripcion").value = "";
-                document.getElementById("monto").value = "";
-                showToast("Movimiento registrado ✓", "success");
-                agregarMovimientoAlHistorial(movCreado);
-                await actualizarSaldos();
-            } else {
-                const errorData = await res.json().catch(() => ({}));
-                showToast(errorData.error || "Error al crear movimiento", "error");
-            }
-        } catch (err) {
-            if (err.message === "SESSION_EXPIRED") sessionExpired();
-            else showToast("Error de conexión con el servidor", "error");
-        } finally {
-            btn.disabled = false; btn.textContent = "Crear";
-        }
-    };
-
     ["descripcion", "monto"].forEach(id => {
         document.getElementById(id).addEventListener("keydown", e => {
             if (e.key === "Enter") { e.preventDefault(); document.getElementById("crearMovimientoBtn").click(); }
@@ -844,7 +1033,6 @@
     // INIT
     // ─────────────────────────────────────
     window.addEventListener("DOMContentLoaded", () => {
-        // Inicializar el estado de visibilidad del grupo de destino según el tipo seleccionado
         const tipoSelect = document.getElementById("tipo");
         const destinoGroup = document.getElementById("destinoGroup");
         if (tipoSelect.value !== "ingreso") {
