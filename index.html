@@ -792,15 +792,13 @@
         if (access) {
             showDashboard();
             cargarDashboard();
-        }
-        // Asegurarse que el dashboard nunca tape el login si no hay sesión
-        else {
+        } else {
             document.getElementById("dashboardScreen").style.display = "none";
             document.getElementById("loginScreen").style.display = "flex";
         }
     });
 
-
+    document.getElementById("btnCancelarConfirm").onclick = () => {
         document.getElementById("modalConfirmar").classList.remove("open");
         _borrarId = null;
     };
