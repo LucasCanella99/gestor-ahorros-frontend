@@ -161,7 +161,7 @@
         .btn-sm.danger:hover { background: var(--danger); color: #fff; }
         .btn-sm:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
-        /* ===== HISTORIAL MEJORADO ===== */
+        /* ===== HISTORIAL MEJORADO (CENTRADOS Y ANCHOS FIJOS) ===== */
         .historial-list { max-height: 420px; overflow-y: auto; margin-top: 16px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .mov-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 16px; }
         .mov-item:last-child { border-bottom: none; }
@@ -358,11 +358,14 @@
 <div id="toast"></div>
 
 <script>
-    // URL de producción apuntando a tu API en Render
     const API = "https://gestor-ahorros-backend.onrender.com/api";
     
+    // Estado de la autenticación: 'login' o 'register'
     let authMode = "login";
 
+    // ─────────────────────────────────────
+    // RELOJ DINÁMICO CIBERPUNK
+    // ─────────────────────────────────────
     function updateClock() {
         const now = new Date();
         const hrs = String(now.getHours()).padStart(2, '0');
@@ -373,6 +376,9 @@
     setInterval(updateClock, 1000);
     updateClock();
 
+    // ─────────────────────────────────────
+    // FORMATO DE FECHAS (DD/MM/AAAA)
+    // ─────────────────────────────────────
     function formatearFechaLocal(fechaStr) {
         if (!fechaStr) return "—";
         const partes = fechaStr.split('T')[0].split('-');
@@ -382,29 +388,41 @@
         return fechaStr;
     }
 
+    // ─────────────────────────────────────
+    // INTERCAMBIAR LOGIN / REGISTRO
+    // ─────────────────────────────────────
     document.getElementById("btnToggleAuth").onclick = () => {
         const errEl = document.getElementById("loginError");
         errEl.style.display = "none";
         
         if (authMode === "login") {
+            // Pasamos a modo Registro
             authMode = "register";
             document.getElementById("authTitle").textContent = "Registrar Usuario";
             document.getElementById("authLogo").textContent = "⚙️";
             document.getElementById("emailField").style.display = "block";
             document.getElementById("loginBtn").textContent = "Registrarse";
+            
+            // Cambiamos los textos sin destruir el elemento
             document.getElementById("toggleAuthPrefix").textContent = "¿Ya tenés cuenta?";
             document.getElementById("btnToggleAuth").textContent = "Ingresá";
         } else {
+            // Volvemos a modo Login
             authMode = "login";
             document.getElementById("authTitle").textContent = "Gestor de Ahorros";
             document.getElementById("authLogo").textContent = "🐃";
             document.getElementById("emailField").style.display = "none";
             document.getElementById("loginBtn").textContent = "Ingresar";
+            
+            // Restauramos los textos
             document.getElementById("toggleAuthPrefix").textContent = "¿No tenés cuenta?";
             document.getElementById("btnToggleAuth").textContent = "Registrate";
         }
     };
 
+    // ─────────────────────────────────────
+    // UTILS TOAST & ESCAPE
+    // ─────────────────────────────────────
     function showToast(msg, type = "success") {
         const t = document.getElementById("toast");
         t.textContent = msg;
@@ -416,6 +434,9 @@
     function escHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
     function escAttr(s) { return String(s).replace(/"/g,"&quot;"); }
 
+    // ─────────────────────────────────────
+    // TOKENS LOCAL STORAGE / SESSION STORAGE
+    // ─────────────────────────────────────
     const getTokens   = () => ({ access: sessionStorage.getItem("access"), refresh: sessionStorage.getItem("refresh") });
     const saveTokens  = (a, r) => { sessionStorage.setItem("access", a); if (r) sessionStorage.setItem("refresh", r); };
     const clearTokens = () => sessionStorage.clear();
@@ -456,6 +477,9 @@
         }, 2000);
     }
 
+    // ─────────────────────────────────────
+    // PROCESAR ENTRADA (BOTÓN PRINCIPAL)
+    // ─────────────────────────────────────
     document.getElementById("loginBtn").onclick = async () => {
         const btn    = document.getElementById("loginBtn");
         const errEl  = document.getElementById("loginError");
@@ -473,6 +497,7 @@
         errEl.style.display = "none";
 
         if (authMode === "login") {
+            // FLUJO LOGIN ORIGINAL
             try {
                 const res = await fetch(`${API}/token/`, {
                     method: "POST",
@@ -496,6 +521,7 @@
                 btn.innerHTML = "Ingresar";
             }
         } else {
+            // NUEVO FLUJO DE REGISTRO
             try {
                 const res = await fetch(`${API}/register/`, {
                     method: "POST",
@@ -504,6 +530,7 @@
                 });
                 if (res.ok) {
                     showToast("Registro exitoso. ¡Iniciando sesión!", "success");
+                    
                     const loginRes = await fetch(`${API}/token/`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -543,6 +570,9 @@
         if (e.key === "Enter") { e.preventDefault(); document.getElementById("loginBtn").click(); }
     });
 
+    // ─────────────────────────────────────
+    // LOGOUT
+    // ─────────────────────────────────────
     document.getElementById("logoutBtn").onclick = () => {
         clearTokens();
         document.getElementById("dashboardScreen").style.display = "none";
@@ -557,6 +587,9 @@
         document.getElementById("dashboardScreen").style.display = "block";
     }
 
+    // ─────────────────────────────────────
+    // CARGAR DASHBOARD
+    // ─────────────────────────────────────
     async function cargarDashboard() {
         try {
             const [safeboxRes, alcRes, movRes] = await Promise.all([
@@ -583,6 +616,196 @@
             else { showToast("Error cargando datos", "error"); console.error(err); }
         }
     }
+
+    // ─────────────────────────────────────
+    // RENDER ALCANCÍAS (CARD ARRIBA)
+    // ─────────────────────────────────────
+    function renderAlcanciasCard(alcancias) {
+        const activa = alcancias.find(a => a.activo);
+        if (activa) {
+            const actual   = parseFloat(activa.monto_actual);
+            const objetivo = parseFloat(activa.monto_objetivo);
+            const pct = objetivo > 0 ? Math.min(100, (actual / objetivo) * 100) : 0;
+            document.getElementById("alcanciaNombre").textContent   = activa.name;
+            document.getElementById("alcanciaProgreso").textContent = `$${actual.toLocaleString("es-AR")} de $${objetivo.toLocaleString("es-AR")} (${pct.toFixed(1)}%)`;
+            document.getElementById("progressFill").style.width     = `${pct}%`;
+        } else {
+            document.getElementById("alcanciaNombre").textContent   = "Sin alcancía activa";
+            document.getElementById("alcanciaProgreso").textContent = "Creá una nueva abajo ↓";
+            document.getElementById("progressFill").style.width     = "0%";
+        }
+    }
+
+    // ─────────────────────────────────────
+    // RENDER GRID ALCANCÍAS (CON FECHAS ADAPTADAS)
+    // ─────────────────────────────────────
+    function renderAlcanciasGrid(alcancias) {
+        const grid = document.getElementById("alcanciasGrid");
+        grid.innerHTML = "";
+
+        if (!alcancias.length) {
+            grid.innerHTML = '<div class="empty-state">No tenés alcancías todavía</div>';
+            return;
+        }
+
+        [...alcancias]
+            .sort((a, b) => { if (a.activo !== b.activo) return a.activo ? -1 : 1; return a.name.localeCompare(b.name); })
+            .forEach(alc => {
+                const actual   = parseFloat(alc.monto_actual);
+                const objetivo = parseFloat(alc.monto_objetivo);
+                const pct = objetivo > 0 ? Math.min(100, (actual / objetivo) * 100) : 0;
+
+                const card = document.createElement("div");
+                card.className = `alcancia-card${alc.activo ? " activa" : ""}`;
+                card.innerHTML = `
+                    ${alc.activo ? '<span class="badge-activa">ACTIVA</span>' : ''}
+                    <div class="alcancia-card-name">${escHtml(alc.name)}</div>
+                    <div class="alcancia-card-fecha">
+                        Creada: ${formatearFechaLocal(alc.fecha_creacion)}${alc.fecha_objetivo ? ' · Meta: ' + formatearFechaLocal(alc.fecha_objetivo) : ''}
+                    </div>
+                    <div class="alcancia-card-montos">
+                        <span>$${actual.toLocaleString("es-AR")}</span> / $${objetivo.toLocaleString("es-AR")} (${pct.toFixed(1)}%)
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:${pct}%"></div>
+                    </div>
+                    <div class="alcancia-card-actions">
+                        ${!alc.activo ? `<button type="button" class="btn-sm activar" data-id="${alc.id}">Activar</button>` : ''}
+                        <button type="button" class="btn-sm danger" data-id="${alc.id}" data-nombre="${escAttr(alc.name)}" data-activa="${alc.activo}">Borrar</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+        grid.querySelectorAll(".btn-sm.activar").forEach(btn => {
+            btn.onclick = () => activarAlcancia(parseInt(btn.dataset.id));
+        });
+        grid.querySelectorAll(".btn-sm.danger").forEach(btn => {
+            btn.onclick = () => abrirConfirmarBorrar(parseInt(btn.dataset.id), btn.dataset.nombre, btn.dataset.activa === "true");
+        });
+    }
+
+    // ─────────────────────────────────────
+    // RENDER HISTORIAL (CENTRADOS Y FECHA LOCAL)
+    // ─────────────────────────────────────
+    function renderHistorial(movimientos) {
+        const histContainer = document.getElementById("historial");
+        histContainer.innerHTML = "";
+
+        if (!movimientos.length) {
+            histContainer.innerHTML = '<div class="empty-state">No hay movimientos registrados</div>';
+            return;
+        }
+
+        // Ordenar movimientos por ID descendente (más nuevos primero)
+        movimientos.sort((a, b) => b.id - a.id);
+
+        movimientos.forEach(mov => {
+            const item = document.createElement("div");
+            item.className = "mov-item";
+            
+            // Elegir el signo según tipo
+            const signo = mov.tipo === "ingreso" ? "+" : "-";
+            const montoFormateado = parseFloat(mov.monto).toLocaleString("es-AR");
+
+            item.innerHTML = `
+                <div class="mov-desc-wrapper">
+                    <div class="mov-desc">${escHtml(mov.descripcion)}</div>
+                    <div class="mov-fecha">${formatearFechaLocal(mov.fecha)}</div>
+                </div>
+                <div class="mov-badge-container">
+                    <span class="mov-badge badge-${mov.tipo}">${mov.tipo}</span>
+                </div>
+                <div class="mov-monto-container">
+                    <span class="mov-monto ${mov.tipo}">${signo}$${montoFormateado}</span>
+                </div>
+            `;
+            histContainer.appendChild(item);
+        });
+    }
+
+    // ─────────────────────────────────────
+    // ACTIVAR ALCANCÍA
+    // ─────────────────────────────────────
+    async function activarAlcancia(id) {
+        try {
+            const alcancias = await (await authFetch(`${API}/alcancias/`)).json();
+            const actual    = alcancias.find(a => a.activo);
+
+            if (actual && actual.id !== id) {
+                await authFetch(`${API}/alcancias/${actual.id}/`, {
+                    method: "PATCH", body: JSON.stringify({ activo: false })
+                });
+            }
+
+            const res = await authFetch(`${API}/alcancias/${id}/`, {
+                method: "PATCH", body: JSON.stringify({ activo: true })
+            });
+
+            if (res.ok) {
+                showToast("Alcancía activada ✓", "success");
+                const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
+                renderAlcanciasCard(nuevas);
+                renderAlcanciasGrid(nuevas);
+            } else {
+                showToast("Error al activar", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión", "error");
+        }
+    }
+
+    // ─────────────────────────────────────
+    // BORRAR ALCANCÍA
+    // ─────────────────────────────────────
+    let _borrarId = null;
+
+    function abrirConfirmarBorrar(id, nombre, esActiva) {
+        _borrarId = id;
+        document.getElementById("confirmNombre").textContent = nombre;
+        document.getElementById("confirmMsg").textContent = esActiva
+            ? "⚠️ Es la alcancía activa. Los movimientos vinculados quedarán sin alcancía asignada."
+            : "Esta acción no se puede deshacer.";
+        document.getElementById("modalConfirmar").classList.add("open");
+    }
+
+    document.getElementById("btnCancelarConfirm").onclick = () => {
+        document.getElementById("modalConfirmar").classList.remove("open");
+        _borrarId = null;
+    };
+    document.getElementById("modalConfirmar").addEventListener("click", e => {
+        if (e.target === document.getElementById("modalConfirmar")) {
+            document.getElementById("modalConfirmar").classList.remove("open");
+            _borrarId = null;
+        }
+    });
+
+    document.getElementById("btnConfirmarBorrar").onclick = async () => {
+        if (!_borrarId) return;
+        const id  = _borrarId;
+        const btn = document.getElementById("btnConfirmarBorrar");
+        btn.disabled = true; btn.textContent = "Borrando…";
+        document.getElementById("modalConfirmar").classList.remove("open");
+        _borrarId = null;
+
+        try {
+            const res = await authFetch(`${API}/alcancias/${id}/`, { method: "DELETE" });
+            if (res.ok || res.status === 204) {
+                showToast("Alcancía eliminada", "success");
+                const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
+                renderAlcanciasCard(nuevas);
+                renderAlcanciasGrid(nuevas);
+            } else {
+                showToast("Error al borrar", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión", "error");
+        } finally {
+            btn.disabled = false; btn.textContent = "Sí, borrar";
+        }
+    };
 </script>
 </body>
 </html>
