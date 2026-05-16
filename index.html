@@ -32,29 +32,27 @@
         /* ===== RELOJ CIBERPUNK ===== */
         #cyberClock {
             position: fixed;
-            top: 14px;
-            right: 16px;
+            top: 12px;
+            right: 14px;
             font-family: 'Space Mono', monospace;
             font-weight: 700;
             color: var(--accent);
             text-shadow: 0 0 8px rgba(200,241,53,0.35);
-            letter-spacing: 1.5px;
-            z-index: 100;
-            background: rgba(15,15,15,0.88);
-            padding: 6px 12px;
+            z-index: 999;
+            background: rgba(15,15,15,0.9);
+            padding: 5px 10px;
             border-radius: 7px;
             border-right: 2px solid var(--accent2);
-            line-height: 1.5;
             pointer-events: none;
-            backdrop-filter: blur(4px);
+            line-height: 1.5;
             text-align: right;
         }
-        #cyberClock .clock-time { font-size: 0.88rem; display: block; }
-        #cyberClock .clock-date { font-size: 0.6rem; color: var(--muted); display: block; }
-        #cyberClock .clock-sys  { font-size: 0.55rem; color: var(--accent2); display: block; letter-spacing: 1px; }
+        #cyberClock .clock-time { font-size: 0.82rem; display: block; letter-spacing: 1px; }
+        #cyberClock .clock-date { font-size: 0.58rem; color: var(--muted); display: block; }
+        #cyberClock .clock-sys  { font-size: 0.52rem; color: var(--accent2); display: block; letter-spacing: 1px; }
         @media (max-width: 500px) {
-            #cyberClock { padding: 4px 8px; top: 8px; right: 8px; }
-            #cyberClock .clock-time { font-size: 0.72rem; }
+            #cyberClock { top: 8px; right: 8px; padding: 4px 7px; }
+            #cyberClock .clock-time { font-size: 0.68rem; }
             #cyberClock .clock-date, #cyberClock .clock-sys { display: none; }
         }
 
@@ -378,9 +376,9 @@
     // ─────────────────────────────────────
     function updateClock() {
         const now = new Date();
-        const hrs = String(now.getHours()).padStart(2, '0');
-        const min = String(now.getMinutes()).padStart(2, '0');
-        const sec = String(now.getSeconds()).padStart(2, '0');
+        const hrs = String(now.getHours()).padStart(2,'0');
+        const min = String(now.getMinutes()).padStart(2,'0');
+        const sec = String(now.getSeconds()).padStart(2,'0');
         const dia = String(now.getDate()).padStart(2,'0');
         const mes = String(now.getMonth()+1).padStart(2,'0');
         const año = now.getFullYear();
@@ -580,26 +578,6 @@
         }
     };
 
-    // ─────────────────────────────────────
-    // WAKE UP RENDER (servidor duerme en plan gratuito)
-    // ─────────────────────────────────────
-    async function wakeUpServer() {
-        const btn   = document.getElementById("loginBtn");
-        const errEl = document.getElementById("loginError");
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Conectando servidor…';
-        errEl.style.display = "none";
-        try {
-            // Ping al endpoint de token (fallará con 400 pero despierta el server)
-            await fetch(`${API}/token/`, { method: "POST", headers: { "Content-Type": "application/json" }, body: '{}' });
-        } catch (_) {}
-        btn.disabled = false;
-        btn.innerHTML = authMode === "login" ? "Ingresar" : "Registrarse";
-    }
-
-    // Despertar el servidor cuando carga la página
-    wakeUpServer();
-
     document.getElementById("password").addEventListener("keydown", e => {
         if (e.key === "Enter") { e.preventDefault(); document.getElementById("loginBtn").click(); }
     });
@@ -742,7 +720,6 @@
             let signo = "";
             if (mov.tipo === "ingreso") signo = "+";
             else if (mov.tipo === "gasto") signo = "-";
-            // ahorrar: sin signo (es transferencia interna)
             const montoFormateado = parseFloat(mov.monto).toLocaleString("es-AR");
 
             item.innerHTML = `
@@ -807,7 +784,23 @@
         document.getElementById("modalConfirmar").classList.add("open");
     }
 
-    document.getElementById("btnCancelarConfirm").onclick = () => {
+    // ─────────────────────────────────────
+    // INIT — solo restaurar sesión si hay tokens válidos
+    // ─────────────────────────────────────
+    window.addEventListener("DOMContentLoaded", () => {
+        const { access } = getTokens();
+        if (access) {
+            showDashboard();
+            cargarDashboard();
+        }
+        // Asegurarse que el dashboard nunca tape el login si no hay sesión
+        else {
+            document.getElementById("dashboardScreen").style.display = "none";
+            document.getElementById("loginScreen").style.display = "flex";
+        }
+    });
+
+
         document.getElementById("modalConfirmar").classList.remove("open");
         _borrarId = null;
     };
