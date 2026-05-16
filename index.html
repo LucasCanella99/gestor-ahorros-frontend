@@ -366,6 +366,7 @@
 <div id="toast"></div>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
     const API = "https://gestor-ahorros-backend.onrender.com/api";
     
     // Estado de la autenticación: 'login' o 'register'
@@ -784,24 +785,11 @@
         document.getElementById("modalConfirmar").classList.add("open");
     }
 
-    // ─────────────────────────────────────
-    // INIT — solo restaurar sesión si hay tokens válidos
-    // ─────────────────────────────────────
-    window.addEventListener("DOMContentLoaded", () => {
-        const { access } = getTokens();
-        if (access) {
-            showDashboard();
-            cargarDashboard();
-        } else {
-            document.getElementById("dashboardScreen").style.display = "none";
-            document.getElementById("loginScreen").style.display = "flex";
-        }
-    });
-
     document.getElementById("btnCancelarConfirm").onclick = () => {
         document.getElementById("modalConfirmar").classList.remove("open");
         _borrarId = null;
     };
+
     document.getElementById("modalConfirmar").addEventListener("click", e => {
         if (e.target === document.getElementById("modalConfirmar")) {
             document.getElementById("modalConfirmar").classList.remove("open");
@@ -811,6 +799,45 @@
 
     document.getElementById("btnConfirmarBorrar").onclick = async () => {
         if (!_borrarId) return;
+        const id  = _borrarId;
+        const btn = document.getElementById("btnConfirmarBorrar");
+        btn.disabled = true; btn.textContent = "Borrando…";
+        document.getElementById("modalConfirmar").classList.remove("open");
+        _borrarId = null;
+        try {
+            const res = await authFetch(`${API}/alcancias/${id}/`, { method: "DELETE" });
+            if (res.ok || res.status === 204) {
+                showToast("Alcancía eliminada", "success");
+                const nuevas = await (await authFetch(`${API}/alcancias/`)).json();
+                renderAlcanciasCard(nuevas);
+                renderAlcanciasGrid(nuevas);
+            } else {
+                showToast("Error al borrar", "error");
+            }
+        } catch (err) {
+            if (err.message === "SESSION_EXPIRED") sessionExpired();
+            else showToast("Error de conexión", "error");
+        } finally {
+            btn.disabled = false; btn.textContent = "Sí, borrar";
+        }
+    };
+
+    // ─────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────
+    const { access } = getTokens();
+    if (access) {
+        showDashboard();
+        cargarDashboard();
+    } else {
+        document.getElementById("dashboardScreen").style.display = "none";
+        document.getElementById("loginScreen").style.display = "flex";
+    }
+
+}); // fin DOMContentLoaded
+</script>
+</body>
+</html>
         const id  = _borrarId;
         const btn = document.getElementById("btnConfirmarBorrar");
         btn.disabled = true; btn.textContent = "Borrando…";
